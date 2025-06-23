@@ -1,3 +1,4 @@
+from os import environ
 from pathlib import Path
 
 import pytest
@@ -27,6 +28,9 @@ def um():
         yield um
     finally:
         um.remove_all()
+
+
+pytestmark = pytest.mark.skipif(bool(environ.get('CI')), reason='not run in CI')
 
 
 class TestExecWrap:
