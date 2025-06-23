@@ -1,5 +1,14 @@
 # sysdi
 [![nox](https://github.com/level12/sysdi/actions/workflows/nox.yaml/badge.svg)](https://github.com/level12/sysdi/actions/workflows/nox.yaml)
+[![pypi](https://img.shields.io/pypi/v/sysdi)](https://pypi.org/project/sysdi/)
+
+
+Manages systemd units and timers.  See:
+
+* [Example](https://github.com/level12/sysdi/blob/main/src/sysd_example.py): for typical usage
+* `class TimedUnit` in [core.py](https://github.com/level12/sysdi/blob/main/src/sysdi/core.py) for
+  additional options and commentary.
+
 
 ## Dev
 
