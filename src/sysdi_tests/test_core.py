@@ -312,4 +312,4 @@ class TestWebPing:
         assert_same(tu.service(), 'cronitor-webping.service')
 
         wp = WebPing(monitor_key='nightly-job')
-        assert wp.pre_url() == 'https://cronitor.link/p/nightly-job/run'
+        assert wp.pre_url() == 'https://cronitor.link/nightly-job/run'
