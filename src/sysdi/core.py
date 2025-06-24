@@ -226,6 +226,12 @@ class TimedUnit:
     # affect the timer's next run time.
     on_unit_inactive_sec: str = None
 
+    # Run on a fixed schedule, more like Cron
+    on_calendar: str = None
+
+    # Run service immediately if last start time was missed
+    persistent: bool | None = None
+
     # Specify the accuracy the timer shall elapse with.  The default is the same as systemd's we
     # are just making it explicit.
     accuracy_sec: str = '60s'
@@ -233,13 +239,13 @@ class TimedUnit:
     # Delay the timer by a randomly selected, evenly distributed amount of time between 0 and the
     # specified time value.
     # https://www.freedesktop.org/software/systemd/man/systemd.timer.html#RandomizedDelaySec=
-    randomized_delay_sec: str = None
+    randomized_delay_sec: str | None = None
 
     # Creates a fixed offset for an individual timer, reducing the jitter in firings of this timer,
     # while still avoiding firing at the same time as other similarly configured timers.
     # This setting has no effect if RandomizedDelaySec= is set to 0. Defaults to false.
     # Only available since 247 (Ubuntu 20.04 has 245).  Ignored when not recognized.
-    fixed_random_delay: bool = None
+    fixed_random_delay: bool | None = None
 
     # Support retry interval/limit
     retry_interval_seconds: int = None
@@ -249,6 +255,7 @@ class TimedUnit:
     start_delay: str = None
     run_every: str = None
     run_delay: str = None
+    run_daily: bool = False
 
     # Other
     unit_basename: str = None
@@ -268,6 +275,22 @@ class TimedUnit:
 
         if self.start_delay:
             self.on_startup_sec = self.start_delay
+
+        if self.run_daily:
+            assert not any((self.run_every, self.run_delay))
+            # i.e. "12am daily"
+            self.on_calendar = 'daily'
+            # But give a 3 hour window (runs anytime from 12am - 3am) to avoid all tasks using
+            # daily from starting at the same time.
+            self.randomized_delay_sec = '3h'
+
+        if self.on_calendar:
+            if self.persistent is not False:
+                # Run immediately if missed
+                self.persistent = True
+            if self.randomized_delay_sec and self.fixed_random_delay is not False:
+                # By default use a fixed random delay so the start time is consistent
+                self.fixed_random_delay = True
 
         if self.run_every:
             self.on_unit_active_sec = self.run_every
@@ -303,6 +326,8 @@ class TimedUnit:
         )
 
         self.option(lines, 'AccuracySec')
+        self.option(lines, 'OnCalendar')
+        self.option(lines, 'Persistent')
         self.option(lines, 'OnStartupSec')
         self.option(lines, 'OnUnitActiveSec')
         self.option(lines, 'OnUnitInactiveSec')

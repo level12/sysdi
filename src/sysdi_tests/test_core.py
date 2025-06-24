@@ -137,7 +137,7 @@ class TestTimedUnit:
         assert 'Restart=on-failure' in service_text
         assert 'RestartSec=15' in service_text
 
-    def test_exec_wrap(self, tmp_path):
+    def test_exec_wrap(self):
         class Wrap(core.ExecWrap):
             def pre(self):
                 return '/usr/bin/exec-pre'
@@ -155,6 +155,15 @@ class TestTimedUnit:
         )
 
         assert_same(tu.service(), 'exec-wrap.service')
+
+    def test_daily_timer(self):
+        tu = TimedUnit(
+            'Daily Example',
+            exec_bin='/bin/picard',
+            run_daily=True,
+        )
+
+        assert_same(tu.timer(), 'daily.timer')
 
 
 class TestManager:
