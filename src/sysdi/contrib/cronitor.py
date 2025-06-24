@@ -5,6 +5,8 @@ from .. import core
 
 class WebPing(core.WebPing):
     def __init__(self, *, api_key: str = '', monitor_key: str):
+        # TODO: actually use the api_key URL version and make sure it works with cronitor.  There
+        # are unit tests but I've not actually used the api_key version live yet.
         self.base_url = furl('https://cronitor.link/')
         if api_key:
             self.base_url /= f'p/{api_key}'
