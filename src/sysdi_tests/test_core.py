@@ -295,9 +295,9 @@ class TestSubProc:
 class TestWebPing:
     def test_it(self):
         wp = WebPing(api_key='abc-123', monitor_key='nightly-job')
-        pre_url = 'https://cronitor.link/p/abc-123/nightly-job?state=run'
-        post_ok_url = 'https://cronitor.link/p/abc-123/nightly-job?state=complete'
-        post_fail_url = 'https://cronitor.link/p/abc-123/nightly-job?state=fail'
+        pre_url = 'https://cronitor.link/p/abc-123/nightly-job/run'
+        post_ok_url = 'https://cronitor.link/p/abc-123/nightly-job/complete'
+        post_fail_url = 'https://cronitor.link/p/abc-123/nightly-job/fail'
 
         assert wp.pre_url() == pre_url
         assert wp.post_ok_url() == post_ok_url
@@ -310,3 +310,6 @@ class TestWebPing:
         )
 
         assert_same(tu.service(), 'cronitor-webping.service')
+
+        wp = WebPing(monitor_key='nightly-job')
+        assert wp.pre_url() == 'https://cronitor.link/p/nightly-job/run'
