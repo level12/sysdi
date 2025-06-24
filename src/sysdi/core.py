@@ -257,10 +257,16 @@ class TimedUnit:
     run_delay: str = None
     run_daily: bool = False
 
-    # Other
+    # Exec Pre/Post support
+    exec_wrap: ExecWrap | None = None
+
+    # Other Unit Config
+    service_extra: list[str] | None = None
+    timer_extra: list[str] | None = None
+
+    # Other (internal)
     unit_basename: str = None
     unit_prefix: str = None
-    exec_wrap: ExecWrap | None = None
 
     def __post_init__(self):
         if not self.exec_bin:
@@ -334,6 +340,8 @@ class TimedUnit:
         self.option(lines, 'RandomizedDelaySec')
         self.option(lines, 'FixedRandomDelay')
 
+        lines.extend(self.timer_extra or ())
+
         lines.extend(
             (
                 '',
@@ -382,6 +390,8 @@ class TimedUnit:
         if self.exec_wrap:
             lines.append(f'ExecStartPre={self.exec_wrap.pre()}')
             lines.append(f'ExecStopPost={self.exec_wrap.post()}')
+
+        lines.extend(self.service_extra or ())
 
         return '\n'.join(lines) + '\n'
 

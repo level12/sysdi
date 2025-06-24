@@ -150,7 +150,6 @@ class TestTimedUnit:
 
         tu = TimedUnit(
             'Check exec wrap',
-            exec_bin='/bin/picard',
             exec_wrap=Wrap(),
         )
 
@@ -159,11 +158,20 @@ class TestTimedUnit:
     def test_daily_timer(self):
         tu = TimedUnit(
             'Daily Example',
-            exec_bin='/bin/picard',
             run_daily=True,
         )
 
         assert_same(tu.timer(), 'daily.timer')
+
+    def test_extra_config(self):
+        tu = TimedUnit(
+            'Extra Config',
+            service_extra=['WorkingDirectory=foo'],
+            timer_extra=['OnUnitInactiveSec=10'],
+        )
+
+        assert_same(tu.service(), 'extra-config.service')
+        assert_same(tu.timer(), 'extra-config.timer')
 
 
 class TestManager:
