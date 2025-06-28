@@ -173,6 +173,13 @@ class TestTimedUnit:
         assert_same(tu.service(), 'extra-config.service')
         assert_same(tu.timer(), 'extra-config.timer')
 
+    def test_startup_sec_default(self):
+        tu = TimedUnit('foo', run_every='15m')
+        assert tu.on_startup_sec == '1'
+
+        tu = TimedUnit('foo', run_delay='15m')
+        assert tu.on_startup_sec == '1'
+
 
 class TestManager:
     @testing.mock_patch_obj(core, 'list_units')

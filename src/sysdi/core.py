@@ -304,6 +304,12 @@ class TimedUnit:
         if self.run_delay:
             self.on_unit_inactive_sec = self.run_delay
 
+        if (self.on_unit_active_sec or self.on_unit_inactive_sec) and not self.on_startup_sec:
+            # A timer that depends on a unit's last run will never fire the first time on it's own.
+            # OnStartupSec is applied retroactively effectively causing the timer to start
+            # immediately upon it's creation.
+            self.on_startup_sec = '1'
+
     @property
     def exec_start(self):
         return f'{self.exec_bin} {self.exec_args}'.strip()
