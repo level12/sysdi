@@ -49,7 +49,7 @@ class TestTimedUnit:
         tu = TimedUnit(
             'check defaults',
             'foo bar',
-            on_startup_sec='15m',
+            on_active_sec='15m',
             on_unit_active_sec='2h',
             randomized_delay_sec='5m',
         )
@@ -60,7 +60,7 @@ class TestTimedUnit:
     def test_defaults_inherited(self):
         @dataclass
         class CustomTU(TimedUnit):
-            on_startup_sec: str = '15m'
+            on_active_sec: str = '15m'
             randomized_delay_sec: str = '5m'
 
         tu = CustomTU(
@@ -175,10 +175,10 @@ class TestTimedUnit:
 
     def test_startup_sec_default(self):
         tu = TimedUnit('foo', run_every='15m')
-        assert tu.on_startup_sec == '1'
+        assert tu.on_active_sec == '1'
 
         tu = TimedUnit('foo', run_delay='15m')
-        assert tu.on_startup_sec == '1'
+        assert tu.on_active_sec == '1'
 
 
 class TestManager:

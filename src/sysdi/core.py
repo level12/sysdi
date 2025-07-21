@@ -213,9 +213,15 @@ class TimedUnit:
     # instead of waiting for ExecStart to exit. Use oneshot as the default instead.
     service_type: str = 'oneshot'
 
-    # How long after system startup or user login to start the unit.
-    # TODO: should have a default here.  Maybe 15s?
+    # How long after systemd service startup should the timer activate?  For a user unit, this
+    # would be from systemd startup for the user.  But if linger is enabled, its essentially from
+    # system startup too.
+    # NOTE: unless you really want a timer that only starts after system start, prefer
+    # on_active_sec.
     on_startup_sec: str = None
+
+    # How long after the timer is started should the service unit activate?
+    on_active_sec: str = None
 
     # Uses the last activation time of this timer's UNIT (not the timer).  If a unit is activated
     # by another means (e.g. systemctl start ...), the timer's next run time will be affected.
@@ -280,7 +286,7 @@ class TimedUnit:
             self.fixed_random_delay = True
 
         if self.start_delay:
-            self.on_startup_sec = self.start_delay
+            self.on_active_sec = self.start_delay
 
         if self.run_daily:
             assert not any((self.run_every, self.run_delay))
@@ -304,11 +310,12 @@ class TimedUnit:
         if self.run_delay:
             self.on_unit_inactive_sec = self.run_delay
 
-        if (self.on_unit_active_sec or self.on_unit_inactive_sec) and not self.on_startup_sec:
+        if (self.on_unit_active_sec or self.on_unit_inactive_sec) and not self.on_active_sec:
             # A timer that depends on a unit's last run will never fire the first time on it's own.
-            # OnStartupSec is applied retroactively effectively causing the timer to start
-            # immediately upon it's creation.
-            self.on_startup_sec = '1'
+            # Configure the timer to kick off the unit immediately upon timer activation so the
+            # service unit runs once and then the other configurations will take care of how
+            # often it is ran.
+            self.on_active_sec = '1'
 
     @property
     def exec_start(self):
@@ -340,6 +347,7 @@ class TimedUnit:
         self.option(lines, 'AccuracySec')
         self.option(lines, 'OnCalendar')
         self.option(lines, 'Persistent')
+        self.option(lines, 'OnActiveSec')
         self.option(lines, 'OnStartupSec')
         self.option(lines, 'OnUnitActiveSec')
         self.option(lines, 'OnUnitInactiveSec')
