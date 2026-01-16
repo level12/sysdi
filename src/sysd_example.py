@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from sysdi import TimedUnit, UnitManager
+from sysdi import ServiceUnit, TimedUnit, UnitManager
 from sysdi.contrib import cronitor
 
 
@@ -53,9 +53,30 @@ um.register(
     ),
 )
 
+
+# Service-only (no timer) unit for chaining
+@dataclass
+class SvcStarship(ServiceUnit):
+    exec_bin: str = '/bin/starship'
+
+
+# Chain: A runs on a schedule; on success triggers B; on success triggers C
+um_chain = UnitManager(unit_prefix='utm-chain-')
+alpha = Starship(
+    'Diagnostics Head',
+    'diagnostics run',
+    start_delay='30s',
+    run_every='15m',
+)
+beta = SvcStarship('Diagnostics Beta', 'beta stage')
+gamma = SvcStarship('Diagnostics Gamma', 'gamma stage')
+um_chain.chain('Diagnostics Chain', alpha, beta, gamma)
+
+
 # Call this in a cli command (or something) to:
 # - Write units to disk
 # - Reload systemd daemon
 # - Enable timer units
 # - Enable login linger: which indicates timers should run even when the user is logged out
 # um.sync(linger='enable')
+# um_chain.sync(linger=None)

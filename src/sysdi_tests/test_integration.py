@@ -44,6 +44,7 @@ class TestExecWrap:
                 'Check exec wrap',
                 exec_bin='/usr/bin/true',
                 exec_wrap=FileWrap(tmp_path),
+                on_active_sec='1000s',
             ),
         )
         um.sync(linger=None)
@@ -59,6 +60,7 @@ class TestExecWrap:
                 'Check exec wrap',
                 exec_bin='/usr/bin/false',
                 exec_wrap=FileWrap(tmp_path),
+                on_active_sec='1000s',
             ),
         )
         um.sync(linger=None)
